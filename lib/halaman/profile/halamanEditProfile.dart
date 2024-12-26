@@ -1,10 +1,11 @@
-// lib/pages/HalamanEditProfile.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pblsemester5/utils/warna.dart';
 import 'package:pblsemester5/widget/tombol/tombolPendek2.dart';
 import '../../models/user_model.dart';
 import '../../service/user_service.dart';
+import 'package:pblsemester5/widget/form/form.dart'; // Tambahkan import untuk form
+import 'package:pblsemester5/widget/form/formBesar.dart'; // Tambahkan import untuk FormBesar
 
 class HalamanEditProfile extends StatefulWidget {
   const HalamanEditProfile({super.key});
@@ -15,10 +16,6 @@ class HalamanEditProfile extends StatefulWidget {
 
 class _HalamanEditProfileState extends State<HalamanEditProfile> {
   UserModel? userModel;
-  TextEditingController namaController = TextEditingController();
-  TextEditingController noTelponController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController alamatController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
@@ -31,24 +28,13 @@ class _HalamanEditProfileState extends State<HalamanEditProfile> {
     UserService userService = UserService();
     userModel = await userService.fetchUserProfile();
     if (userModel != null) {
-      setState(() {
-        namaController.text = userModel!.nama;
-        noTelponController.text = userModel!.noTelpon;
-        emailController.text = userModel!.email;
-        alamatController.text = userModel!.alamat;
-        // Jika password juga ingin dimuat
-        passwordController.text = userModel!.password;
-      });
+      setState(() {});
     }
   }
 
   Future<void> _saveProfile() async {
     if (userModel != null) {
-      userModel!.nama = namaController.text;
-      userModel!.noTelpon = noTelponController.text;
-      userModel!.email = emailController.text;
-      userModel!.alamat = alamatController.text;
-      userModel!.password = passwordController.text; // Tambahkan jika ingin memperbarui password
+      // userModel!.password = passwordController.text; // Update password jika perlu
 
       UserService userService = UserService();
       bool success = await userService.updateUserProfile(userModel!);
@@ -140,30 +126,29 @@ class _HalamanEditProfileState extends State<HalamanEditProfile> {
                       padding: const EdgeInsets.fromLTRB(30, 30, 30, 30),
                       child: Column(
                         children: [
-                          TextFormField(
-                            controller: namaController,
-                            decoration: const InputDecoration(labelText: 'Nama'),
+                          form(
+                            namaForm: 'Nama',
+                            initialValue: userModel!.nama,
                           ),
                           const SizedBox(height: 10),
-                          TextFormField(
-                            controller: noTelponController,
-                            decoration: const InputDecoration(labelText: 'No.Telpon'),
+                          form(
+                            namaForm: 'No. Telpon',
+                            initialValue: userModel!.noTelpon,
                           ),
                           const SizedBox(height: 10),
-                          TextFormField(
-                            controller: emailController,
-                            decoration: const InputDecoration(labelText: 'Email'),
+                          form(
+                            namaForm: 'Email',
+                            initialValue: userModel!.email,
                           ),
                           const SizedBox(height: 10),
-                          TextFormField(
-                            controller: passwordController,
-                            obscureText: true,
-                            decoration: const InputDecoration(labelText: 'Password'),
-                          ),
+                          // form(
+                          //   namaForm: 'Password',
+                          //   initialValue: '', // Password tidak dimuat untuk keamanan
+                          // ),
                           const SizedBox(height: 10),
-                          TextFormField(
-                            controller: alamatController,
-                            decoration: const InputDecoration(labelText: 'Alamat'),
+                          FormBesar(
+                            namaForm: 'Alamat',
+                            initialValue: userModel!.alamat,
                           ),
                           const SizedBox(height: 30),
                           tombolPendek2(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pblsemester5/halaman/halamanDashboard.dart';
+import 'package:pblsemester5/halaman/profile/halamanProfile.dart';
 import 'package:pblsemester5/utils/warna.dart';
 import 'package:pblsemester5/widget/tombol/tombolPendek2.dart';
 import 'dart:convert';
@@ -18,37 +18,65 @@ class _HalamanLoginState extends State<HalamanLogin> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _isPasswordHidden = true;
+  bool _isLoading = false;
 
-  // Simpan token setelah login berhasil
-  Future<void> saveUserToken(String token) async {
+  // Simpan token dan data pengguna setelah login berhasil
+  Future<void> saveUserData(String token, String namaPengguna) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
+    await prefs.setString('namaPengguna', namaPengguna);
   }
 
   // Login ke API
   Future<void> loginUser() async {
+    if (!RegExp(r'^[0-9]{10,15}$').hasMatch(phoneController.text)) {
+      _showErrorDialog('Nomor telepon tidak valid.');
+      return;
+    }
+    if (passwordController.text.isEmpty || passwordController.text.length < 8) {
+      _showErrorDialog('Password minimal 8 karakter.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/api/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'noTelpon': phoneController.text,
-          'password': passwordController.text,
-        }),
-      );
+      final response = await http
+          .post(
+            Uri.parse('http://127.0.0.1:8000/api/login'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'noTelpon': phoneController.text.trim(),
+              'password': passwordController.text.trim(),
+            }),
+          )
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw Exception('Request timeout. Silakan coba lagi.');
+      });
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        await saveUserToken(responseData['jwt-token']); // Simpan token
+        await saveUserData(responseData['jwt-token'], responseData['user']['namaPengguna']);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HalamanDashboard()),
+          MaterialPageRoute(builder: (context) => const HalamanProfile()),
         );
       } else {
-        _showErrorDialog('Login gagal. Periksa kembali kredensial Anda.');
+        final errorData = jsonDecode(response.body);
+        final errorMessage = errorData['error'] ?? 'Login gagal. Silakan coba lagi.';
+        _showErrorDialog(errorMessage);
       }
     } catch (e) {
-      _showErrorDialog('Terjadi kesalahan saat melakukan login.');
+      _showErrorDialog(e.toString());
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -142,20 +170,17 @@ class _HalamanLoginState extends State<HalamanLogin> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    tombolPendek2(
-                      warnaTombol: Warna().BiruTombol,
-                      warnaText: Warna().PutihHuruf,
-                      tekan: () {
-                        if (phoneController.text.isNotEmpty &&
-                            passwordController.text.isNotEmpty) {
-                          loginUser();
-                        } else {
-                          _showErrorDialog('Nomor telepon dan password harus diisi.');
-                        }
-                      },
-                      textTombol: 'Masuk',
-                    ),
+                    const SizedBox(height: 20),
+                    _isLoading
+                        ? const CircularProgressIndicator()
+                        : tombolPendek2(
+                            warnaTombol: Warna().BiruTombol,
+                            warnaText: Warna().PutihHuruf,
+                            tekan: () {
+                              loginUser();
+                            },
+                            textTombol: 'Masuk',
+                          ),
                   ],
                 ),
               ),

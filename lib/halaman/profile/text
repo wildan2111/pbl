@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pblsemester5/utils/warna.dart';
-import 'package:pblsemester5/widget/form/formReadOnly.dart'; // Import form read-only
-import 'package:pblsemester5/widget/form/formBesarReadOnly.dart'; // Import form besar read-only
+import 'package:pblsemester5/widget/form/form.dart';
+import 'package:pblsemester5/widget/form/formBesar.dart';
+import 'package:pblsemester5/widget/navigasi%20bar/butoonNavigatitonBar.dart';
 import 'package:pblsemester5/widget/tombol/tombolPendek2.dart';
 import '../../models/user_model.dart';
 import '../../service/user_service.dart';
-import 'halamanEditProfile.dart'; // Import halaman edit profile
 
 class HalamanProfile extends StatefulWidget {
   const HalamanProfile({super.key});
@@ -84,6 +84,23 @@ class _HalamanProfileState extends State<HalamanProfile> {
                                         'assets/sempel/download(1).jpeg'),
                                   ),
                                 ),
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    width: 35,
+                                    height: 35,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
+                                      color: Warna().BiruTombol,
+                                    ),
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: Warna().Putih,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 30),
@@ -92,29 +109,29 @@ class _HalamanProfileState extends State<HalamanProfile> {
                                   const EdgeInsets.fromLTRB(30, 30, 30, 30),
                               child: Column(
                                 children: [
-                                  formReadOnly(
+                                  form(
                                     namaForm: 'Nama',
-                                    value: userModel?.nama ?? '',
+                                    initialValue: userModel?.nama ?? '',
                                   ),
                                   const SizedBox(height: 10),
-                                  formReadOnly(
+                                  form(
                                     namaForm: 'No.Telpon',
-                                    value: userModel?.noTelpon ?? '',
+                                    initialValue: userModel?.noTelpon ?? '',
                                   ),
                                   const SizedBox(height: 10),
-                                  formReadOnly(
+                                  form(
                                     namaForm: 'Email',
-                                    value: userModel?.email ?? '',
+                                    initialValue: userModel?.email ?? '',
                                   ),
-                                  // const SizedBox(height: 10),
-                                  // formReadOnly(
-                                  //   namaForm: 'Password',
-                                  //   value: '********',
-                                  // ),
                                   const SizedBox(height: 10),
-                                  FormBesarReadOnly(
+                                  const form(
+                                    namaForm: 'Password',
+                                    initialValue: '********',
+                                  ),
+                                  const SizedBox(height: 10),
+                                  FormBesar(
                                     namaForm: 'Alamat',
-                                    value: userModel?.alamat ?? '',
+                                    initialValue: userModel?.alamat ?? '',
                                   ),
                                   const SizedBox(height: 30),
                                   tombolPendek2(
@@ -125,11 +142,11 @@ class _HalamanProfileState extends State<HalamanProfile> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const HalamanEditProfile(),
+                                              const ButtonNavigationBar(),
                                         ),
                                       );
                                     },
-                                    textTombol: 'Edit Profile', // Tombol untuk edit
+                                    textTombol: 'Simpan',
                                   ),
                                 ],
                               ),
